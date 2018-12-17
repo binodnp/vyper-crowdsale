@@ -1,0 +1,42 @@
+{
+  "name": "vyper-crowdsale",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/binodnp/vyper-crowdsale"
+  },
+  "keywords": [
+    "vyper",
+    "crowdsale",
+    "solidity",
+    "ethereum",
+    "erc20",
+    "erc223",
+    "erc721",
+    "token",
+    "coin",
+    "crytocurrency",
+    "smart",
+    "contract"
+  ],
+  "author": "Binod Nirvan",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/binodnp/vyper-crowdsale/issues"
+  },
+  "homepage": "https://github.com/binodnp/vyper-crowdsale",
+  "devDependencies": {
+    "bignumber.js": "^7.2.1",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^3.0.0"
+  }
+}
