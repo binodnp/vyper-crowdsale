@@ -1,12 +1,14 @@
-# TimedCrowdsale
+# IncreasingPriceCrowdsale
 # Contributors: Binod Nirvan
 # This file is released under Apache 2.0 license.
-# @dev Crowdsale accepting contributions only within a time frame.
+# @dev Extension of Crowdsale contract that increases the price of tokens linearly in time.
+# Note that what should be provided to the constructor is the initial and final _rates_, that is,
+# the amount of tokens per wei contributed. Thus, the initial rate must be greater than the final rate.
 # Ported from Open Zeppelin
 # https://github.com/OpenZeppelin
 # 
 # See https://github.com/OpenZeppelin
-# Open Zeppelin tests ported: Crowdsale.test.js
+# Open Zeppelin tests ported: IncreasingPriceCrowdsale.test.js
 
 
 #@dev ERC20/223 Features referenced by this contract
@@ -20,6 +22,10 @@ contract TokenContract:
 # @param _amount amount of tokens purchased
 TokenPurchase: event({_purchaser: indexed(address), _beneficiary: indexed(address), _value: uint256(wei), _amount: uint256})
 
+#IncreasingPriceCrowdsale
+initialRate: public(uint256)
+finalRate: public(uint256)
+
 #Timed Crowdsale
 openingTime: public(timestamp)
 closingTime: public(timestamp)
@@ -31,55 +37,63 @@ token: public(address)
 #Address where funds are collected
 wallet: public(address)
 
-# How many token units a buyer gets per wei.
-# The rate is the conversion between wei and the smallest and indivisible token unit.
-# So, if you are using a rate of 1 with a DetailedERC20 token with 3 decimals called TOK
-# 1 wei will give you 1 unit, or 0.001 TOK.
-rate: public(uint256)
-
 #Amount of wei raised
 weiRaised: public(uint256(wei))
+
+
+#IncreasingPriceCrowdsale
+@public
+@constant
+def getCurrentRate() -> uint256:
+    """
+    @dev Returns the rate of tokens per wei at the present time.
+    Note that, as price _increases_ with time, the rate _decreases_.
+    @return The number of tokens a buyer gets per wei at a given time
+    """
+
+    elapsedTime: timedelta = block.timestamp - self.openingTime
+    timeRange: timedelta = self.closingTime - self.openingTime
+    rateRange: uint256 = self.initialRate - self.finalRate
+    return self.initialRate - (elapsedTime * rateRange / timeRange)
 
 #Timed Crowdsale
 @public
 @constant
 def hasClosed() -> bool:
-    """
-    @dev Checks whether the period in which the crowdsale is open has already elapsed.
-    @return Whether crowdsale period has elapsed
-    """
-
     return block.timestamp > self.closingTime
 
 #Crowdsale
 @public
-def __init__( _openingTime: timestamp, _closingTime: timestamp, _rate: uint256, _wallet: address, _token: address):
+def __init__(_openingTime: timestamp, _closingTime: timestamp, _wallet: address, _token: address, _initialRate: uint256, _finalRate: uint256):
     """
-    @dev Initializes this contract
+    @dev Constructor, takes initial and final rates of tokens received per wei contributed.
     @param _openingTime Crowdsale opening time
-    @param _closingTime Crowdsale closing time    @param _rate Number of token units a buyer gets per wei
-    @param _rate Number of token units a buyer gets per wei
+    @param _closingTime Crowdsale closing time
     @param _wallet Address where collected funds will be forwarded to
     @param _token Address of the token being sold
+    @param _initialRate Number of tokens a buyer gets per wei at the start of the crowdsale
+    @param _finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
     """
 
     assert _openingTime >= block.timestamp, "The value for opening time cannot be in the past."
     assert _closingTime >= _openingTime, "The closing time cannot be before opening time."
-    assert _rate > 0, "Invalid value supplied for the parameter \"_rate\"."
     assert _wallet != ZERO_ADDRESS, "Invalid wallet address."
     assert _token != ZERO_ADDRESS, "Invalid token address."
+    assert _initialRate >= _finalRate, "The initial rate must be greater than final rate."
+    assert _finalRate > 0, "The final rate "
 
     self.openingTime = _openingTime
     self.closingTime = _closingTime
-    self.rate = _rate
     self.wallet = _wallet
     self.token = _token
+    self.initialRate = _initialRate
+    self.finalRate = _finalRate
 
 @private
 @constant
 def getTokenAmount(_weiAmount: uint256) -> uint256:
-    return _weiAmount * self.rate
-
+    currentRate: uint256 = self.getCurrentRate()
+    return currentRate * _weiAmount
 
 @private
 def processTransaction(_sender: address, _beneficiary: address, _weiAmount: uint256(wei)):

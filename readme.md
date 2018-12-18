@@ -88,7 +88,13 @@ Open the terminal panel and type `truffle test` to see the test results.
 
 **Contracts**
 - Crowdsale
+- Allowance Crowdsale
+- Capped Crowdsale
+- Increasing Price Crowdsale
 - Individually Capped Crowdsale
+- Minted Crowdsale
+- Timed Crowdsale
+- Whitelisted Crowdsale
 
 **License**
 

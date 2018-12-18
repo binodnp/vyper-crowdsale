@@ -74,6 +74,7 @@ def transferOwnership(_newOwner: address):
     @dev Allows the current owner to transfer control of the contract to a newOwner.
     @param _newOwner The address to transfer ownership to.
     """
+
     assert msg.sender == self.owner, "Access is denied."
     assert _newOwner != ZERO_ADDRESS, "Invalid owner supplied."
 
@@ -124,7 +125,7 @@ def getUserCap(_beneficiary: address) -> uint256:
 @constant
 def getUserContribution(_beneficiary: address) -> uint256:
     """
-    @dev Returns the amount contributed so far by a sepecific user.
+    @dev Returns the amount contributed so far by a specific user.
     @param _beneficiary Address of contributor
     @return User contribution so far
     """
@@ -140,6 +141,7 @@ def __init__(_rate: uint256, _wallet: address, _token: address):
     @param _wallet Address where collected funds will be forwarded to
     @param _token Address of the token being sold
     """
+
     assert _rate > 0, "Invalid value supplied for the parameter \"_rate\"."
     assert _wallet != ZERO_ADDRESS, "Invalid wallet address."
     assert _token != ZERO_ADDRESS, "Invalid token address."

@@ -1,17 +1,19 @@
-# IndividuallyCappedCrowdsale
+# AllowanceCrowdsale
 # Contributors: Binod Nirvan
 # This file is released under Apache 2.0 license.
-# @dev Crowdsale with a limit for total contributions.
+# @dev Extension of Crowdsale where tokens are held by a wallet, which approves an allowance to the crowdsale.
 # Ported from Open Zeppelin
 # https://github.com/OpenZeppelin
 # 
 # See https://github.com/OpenZeppelin
-# Open Zeppelin tests ported: Crowdsale.test.js
+# Open Zeppelin tests ported: AllowanceCrowdsale.test.js
 
 
 #@dev ERC20/223 Features referenced by this contract
 contract TokenContract:
-    def transfer(_to: address, _value: uint256) -> bool: modifying
+    def transferFrom(_from: address, _to: address, _value: uint256) -> bool: modifying
+    def allowance(_owner: address, _spender: address) -> uint256: constant
+    
 
 # Event for token purchase logging
 # @param _purchaser who paid for the tokens
@@ -19,6 +21,9 @@ contract TokenContract:
 # @param _value weis paid for purchase
 # @param _amount amount of tokens purchased
 TokenPurchase: event({_purchaser: indexed(address), _beneficiary: indexed(address), _value: uint256(wei), _amount: uint256})
+
+#AllowanceCrowdsale
+tokenWallet: public(address)
 
 # The token being sold
 token: public(address)
@@ -35,22 +40,32 @@ rate: public(uint256)
 #Amount of wei raised
 weiRaised: public(uint256(wei))
 
+#AllowanceCrowdsale
 @public
-def __init__(_rate: uint256, _wallet: address, _token: address):
+@constant
+def getRemainingTokens() -> uint256:
+    return TokenContract(self.token).allowance(self.tokenWallet, self)
+
+#Crowdsale
+@public
+def __init__(_rate: uint256, _wallet: address, _token: address, _tokenWallet: address):
     """
     @dev Initializes this contract
     @param _rate Number of token units a buyer gets per wei
     @param _wallet Address where collected funds will be forwarded to
     @param _token Address of the token being sold
+    @param _tokenWallet Address holding the tokens, which has approved allowance to the crowdsale
     """
 
     assert _rate > 0, "Invalid value supplied for the parameter \"_rate\"."
     assert _wallet != ZERO_ADDRESS, "Invalid wallet address."
     assert _token != ZERO_ADDRESS, "Invalid token address."
+    assert _tokenWallet != ZERO_ADDRESS, "Invalid token wallet."
 
     self.rate = _rate
     self.wallet = _wallet
     self.token = _token
+    self.tokenWallet = _tokenWallet
 
 @private
 @constant
@@ -70,7 +85,7 @@ def processTransaction(_sender: address, _beneficiary: address, _weiAmount: uint
     self.weiRaised += _weiAmount
 
     #process purchase
-    assert TokenContract(self.token).transfer(_beneficiary, tokens), "Could not forward funds due to an unknown error."
+    assert TokenContract(self.token).transferFrom(self.tokenWallet, _beneficiary, tokens), "Could not forward funds due to an unknown error."
     log.TokenPurchase(_sender, _beneficiary, _weiAmount, tokens)
 
     #forward funds to the receiving wallet address.

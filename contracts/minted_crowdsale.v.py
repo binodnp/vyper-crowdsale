@@ -1,17 +1,18 @@
-# IndividuallyCappedCrowdsale
+# MintedCrowdsale
 # Contributors: Binod Nirvan
 # This file is released under Apache 2.0 license.
-# @dev Crowdsale with a limit for total contributions.
+# @dev Extension of Crowdsale contract whose tokens are minted in each purchase.
+# Token ownership should be transferred to MintedCrowdsale for minting.
 # Ported from Open Zeppelin
 # https://github.com/OpenZeppelin
 # 
 # See https://github.com/OpenZeppelin
-# Open Zeppelin tests ported: Crowdsale.test.js
+# Open Zeppelin tests ported: MintedCrowdsale.test.js, MintedCrowdsale.behaviour.js
 
 
 #@dev ERC20/223 Features referenced by this contract
 contract TokenContract:
-    def transfer(_to: address, _value: uint256) -> bool: modifying
+    def mint(_to: address, _amount: uint256) -> bool: modifying
 
 # Event for token purchase logging
 # @param _purchaser who paid for the tokens
@@ -70,7 +71,8 @@ def processTransaction(_sender: address, _beneficiary: address, _weiAmount: uint
     self.weiRaised += _weiAmount
 
     #process purchase
-    assert TokenContract(self.token).transfer(_beneficiary, tokens), "Could not forward funds due to an unknown error."
+    #Potentially dangerous assumption about the type of the token.
+    assert TokenContract(self.token).mint(_beneficiary, tokens), "Could not forward funds due to an unknown error."
     log.TokenPurchase(_sender, _beneficiary, _weiAmount, tokens)
 
     #forward funds to the receiving wallet address.

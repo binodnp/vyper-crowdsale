@@ -6,7 +6,7 @@
 # https://github.com/OpenZeppelin
 # 
 # See https://github.com/OpenZeppelin
-# Open Zeppelin tests ported: Crowdsale.test.js
+# Open Zeppelin tests ported: CappedCrowdsale.test.js
 
 
 #@dev ERC20/223 Features referenced by this contract
@@ -43,6 +43,11 @@ weiRaised: public(uint256(wei))
 @public
 @constant
 def capReached() -> bool:
+    """
+    @dev Checks whether the cap has been reached.
+    @return Whether the cap was reached
+    """
+
     return as_unitless_number(self.weiRaised) >= self.cap
 
 #Crowdsale
@@ -53,7 +58,9 @@ def __init__(_rate: uint256, _wallet: address, _token: address, _cap: uint256):
     @param _rate Number of token units a buyer gets per wei
     @param _wallet Address where collected funds will be forwarded to
     @param _token Address of the token being sold
+    @param _cap Max amount of wei to be contributed
     """
+
     assert _rate > 0, "Invalid value supplied for the parameter \"_rate\"."
     assert _wallet != ZERO_ADDRESS, "Invalid wallet address."
     assert _token != ZERO_ADDRESS, "Invalid token address."

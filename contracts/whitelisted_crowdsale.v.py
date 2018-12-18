@@ -6,7 +6,7 @@
 # https://github.com/OpenZeppelin
 # 
 # See https://github.com/OpenZeppelin
-# Open Zeppelin tests ported: Crowdsale.test.js
+# Open Zeppelin tests ported: WhitelistedCrowdsale.test.js, Ownable.test.js, Ownable.behaviour.js
 
 
 #@dev ERC20/223 Features referenced by this contract
@@ -77,6 +77,7 @@ def transferOwnership(_newOwner: address):
     @dev Allows the current owner to transfer control of the contract to a newOwner.
     @param _newOwner The address to transfer ownership to.
     """
+
     assert msg.sender == self.owner, "Access is denied."
     assert _newOwner != ZERO_ADDRESS, "Invalid owner supplied."
 
@@ -135,6 +136,7 @@ def __init__(_rate: uint256, _wallet: address, _token: address):
     @param _wallet Address where collected funds will be forwarded to
     @param _token Address of the token being sold
     """
+
     assert _rate > 0, "Invalid value supplied for the parameter \"_rate\"."
     assert _wallet != ZERO_ADDRESS, "Invalid wallet address."
     assert _token != ZERO_ADDRESS, "Invalid token address."

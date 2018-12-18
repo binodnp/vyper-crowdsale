@@ -1,5 +1,6 @@
 const { ether } = require('./helpers/ether');
 const { expectThrow } = require('./helpers/expectThrow');
+const { shouldBehaveLikeOwnable } = require('./ownable.behavior.js');
 
 const BigNumber = web3.BigNumber;
 
@@ -18,9 +19,13 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
     beforeEach(async function () {
       this.token = await SimpleToken.new(web3.fromAscii("Name"), web3.fromAscii("SYMBOL"), tokenSupply, 18);
       this.crowdsale = await WhitelistedCrowdsale.new(rate, wallet, this.token.address);
+      this.ownable = this.crowdsale;
+      
       await this.token.transfer(this.crowdsale.address, tokenSupply);
       await this.crowdsale.addAddressToWhitelist(authorized);
     });
+
+    shouldBehaveLikeOwnable([_, wallet, authorized, unauthorized, anotherAuthorized]);
 
     describe('accepting payments', function () {
       it('should accept payments to whitelisted (from whichever buyers)', async function () {
