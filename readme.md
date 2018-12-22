@@ -95,6 +95,7 @@ Open the terminal panel and type `truffle test` to see the test results.
 - Minted Crowdsale
 - Timed Crowdsale
 - Whitelisted Crowdsale
+- Post Delivery Crowdsale
 
 **License**
 
